@@ -190,7 +190,6 @@ table.edit input{width:96px;padding:4px 6px;border:1px solid var(--line);border-
         <div class="who">
           <span class="eyebrow" id="pEyebrow">Vale SA · Eng. 2002342439 · Strategy &amp; Operations</span>
           <div class="nm"><h2>Autônomos Exp Serra Norte</h2><span id="pStatus"></span></div>
-          <p class="insight" id="pInsight"></p>
         </div>
         <div class="assume" aria-label="Premissas">
           <div class="field f-s"><label for="inReal">Realização</label><div class="inp"><input id="inReal" type="text" inputmode="decimal"><span>%</span></div></div>
@@ -212,32 +211,32 @@ table.edit input{width:96px;padding:4px 6px;border:1px solid var(--line);border-
     <!-- Executiva -->
     <div class="c12 dash" id="kpis" data-view="exec"></div>
     <section class="card c7" data-view="exec" aria-label="Posição acumulada">
-      <div class="card-hd"><div class="t"><span class="eyebrow">Posição acumulada</span><h3 id="tCum"></h3></div>
+      <div class="card-hd"><div class="t"><span class="eyebrow">Posição acumulada</span><h3 id="tCum">Gain/Loss e Covered/Uncovered acumulados</h3></div>
         <div class="legend"><span><i class="ln" style="background:var(--s1)"></i>Gain/Loss</span><span><i class="ln" style="background:var(--s2)"></i>Covered/Uncovered</span></div></div>
       <div class="chart" id="chCum"></div>
       <p class="source">Gain/Loss = faturado − (receita + despesas), acumulado. Covered/Uncovered = recebido − (receita + despesas), acumulado. Área sombreada = projeção.</p>
     </section>
     <section class="card c5" data-view="exec" aria-label="Ponte de caixa">
-      <div class="card-hd"><div class="t"><span class="eyebrow">Do custo incorrido ao caixa</span><h3 id="tBridge"></h3></div></div>
+      <div class="card-hd"><div class="t"><span class="eyebrow">Do custo incorrido ao caixa</span><h3 id="tBridge">Custo incorrido, faturado e recebido</h3></div></div>
       <div class="chart" id="chBridge"></div>
       <p class="source" id="srcBridge"></p>
     </section>
     <section class="card c12" data-view="exec" aria-label="Mensal">
-      <div class="card-hd"><div class="t"><span class="eyebrow">Mês a mês</span><h3 id="tMonth"></h3></div>
+      <div class="card-hd"><div class="t"><span class="eyebrow">Mês a mês</span><h3 id="tMonth">Receita, faturamento e recebimento</h3></div>
         <div class="legend"><span><i style="background:var(--s1)"></i>Receita</span><span><i style="background:var(--s2)"></i>Faturamento líq.</span><span><i style="background:var(--s3)"></i>Recebimento líq.</span></div></div>
       <div class="chart" id="chMonth"></div>
     </section>
 
     <!-- Fluxo -->
     <section class="card c12" data-view="fluxo" hidden aria-label="Fluxo de caixa">
-      <div class="card-hd"><div class="t"><span class="eyebrow">Fluxo de caixa mensal · R$ líquidos</span><h3 id="tFluxo"></h3></div><span class="sub">Células amarelas são editáveis aqui ou na aba Projeção</span></div>
+      <div class="card-hd"><div class="t"><span class="eyebrow">Fluxo de caixa mensal · R$ líquidos</span><h3 id="tFluxo">Fluxo de caixa mensal</h3></div><span class="sub">Células amarelas são editáveis aqui ou na aba Projeção</span></div>
       <div class="tbl" id="tbFluxo"></div>
       <p class="source">Faturamento líquido = valor da fatura − Tax Amount (AR). Receita = Std. Price × Realização. Faturas pagas entram no mês de vencimento (o AR não traz data de pagamento); faturas vencidas em aberto entram no mês corrente. Juros s/ WIP é memória e não entra nos saldos.</p>
     </section>
 
     <!-- Fat x Receita -->
     <section class="card c12" data-view="fatrec" hidden aria-label="Faturamento x Receita">
-      <div class="card-hd"><div class="t"><span class="eyebrow">Faturamento × Receita</span><h3 id="tFR"></h3></div>
+      <div class="card-hd"><div class="t"><span class="eyebrow">Faturamento × Receita</span><h3 id="tFR">Faturamento e receita por mês</h3></div>
         <div class="legend"><span><i style="background:var(--s1)"></i>Receita</span><span><i style="background:var(--s2)"></i>Faturamento líq.</span><span><i class="ln" style="background:var(--ink)"></i>Diferença acumulada</span></div></div>
       <div class="pstrip" id="psFR"></div>
       <div class="chart" id="chFR"></div>
@@ -246,19 +245,19 @@ table.edit input{width:96px;padding:4px 6px;border:1px solid var(--line);border-
 
     <!-- Profissionais -->
     <section class="card c12" data-view="prof" hidden aria-label="Profissionais">
-      <div class="card-hd"><div class="t"><span class="eyebrow">Débitos por profissional</span><h3 id="tProf"></h3></div>
+      <div class="card-hd"><div class="t"><span class="eyebrow">Débitos por profissional</span><h3 id="tProf">Horas e receita por profissional</h3></div>
         <div class="seg" role="group" aria-label="Visão"><button data-m="res" aria-pressed="true">Resumo</button><button data-m="h" aria-pressed="false">Horas por mês</button><button data-m="r" aria-pressed="false">Receita por mês</button></div></div>
       <div class="tbl" id="tbProf"></div>
     </section>
 
     <!-- Despesas -->
     <section class="card c4" data-view="desp" hidden aria-label="Resumo de despesas">
-      <div class="card-hd"><div class="t"><span class="eyebrow">Despesas</span><h3 id="tDesp"></h3></div></div>
+      <div class="card-hd"><div class="t"><span class="eyebrow">Despesas</span><h3 id="tDesp">Resumo</h3></div></div>
       <div class="pstrip" id="psDesp" style="grid-template-columns:repeat(2,minmax(0,1fr))"></div>
       <div class="cats" id="catsDesp"></div>
     </section>
     <section class="card c8" data-view="desp" hidden aria-label="Despesas por mês">
-      <div class="card-hd"><div class="t"><span class="eyebrow">Realizado × programado</span><h3 id="tDesp2"></h3></div>
+      <div class="card-hd"><div class="t"><span class="eyebrow">Realizado × programado</span><h3 id="tDesp2">Despesas realizadas e programadas</h3></div>
         <div class="legend"><span><i style="background:var(--s1)"></i>Faturada</span><span><i style="background:var(--s2)"></i>A faturar</span><span><i class="ln" style="background:var(--ink)"></i>Programado</span></div></div>
       <div class="chart" id="chDesp"></div>
     </section>
@@ -270,7 +269,7 @@ table.edit input{width:96px;padding:4px 6px;border:1px solid var(--line);border-
 
     <!-- AR -->
     <section class="card c12" data-view="ar" hidden aria-label="Contas a receber">
-      <div class="card-hd"><div class="t"><span class="eyebrow">Contas a receber</span><h3 id="tAR"></h3></div></div>
+      <div class="card-hd"><div class="t"><span class="eyebrow">Contas a receber</span><h3 id="tAR">Posição e aging</h3></div></div>
       <div class="pstrip" id="psAR"></div>
       <div class="aging" id="aging"></div>
       <p class="source" id="arNote"></p>
@@ -438,7 +437,6 @@ function renderAll(){
   $('asof').textContent=`Data-base ${dbs} · R$ líquidos de impostos`;
   const st=last.c<0?{c:'bad',t:'Projeto descoberto'}:{c:'ok',t:'Projeto coberto'};
   $('pStatus').innerHTML=`<span class="st ${st.c}"><i></i>${st.t}</span>`;
-  $('pInsight').innerHTML=`O caixa está <b>${R$(last.c)}</b> abaixo do custo incorrido no fechamento de ${ml(last.k)}; <b>${R$(M.lateB)}</b> em faturas já vencidas explicam boa parte. Pelo plano atual a posição ${be?`volta a positivo em <b>${ml(be.k)}</b>`:'não volta a positivo no horizonte'}.`;
   renderFY();
   ({exec:rExec,fluxo:rFluxo,fatrec:rFR,prof:rProf,desp:rDesp,ar:rAR,proj:rProj})[VIEW]();
   $('source').textContent=`Fonte: ${DATA.file} · AR (${DATA.ar.length} faturas), TIME (${DATA.time.length} lançamentos), EXPENSE (${DATA.exp.length} lançamentos) · Realização ${fmtIn(P.real)}% · Faturas pagas alocadas no mês de vencimento.`;
@@ -455,17 +453,17 @@ function rExec(){
     kpi('Receita reconhecida'+(FY==='all'?'':' · FY'+String(FY).slice(2)),R$(fyRec),`${N0.format(fyH)} horas · realização ${fmtIn(P.real)}%`);
   const inc=M.recInc+M.despInc;
   const rc=R.find(r=>r.c===Math.min(...R.map(r=>r.c)));
-  $('tCum').textContent=`Exposição de caixa chegou a ${R$(rc.c)} em ${ml(rc.k)}${be&&R.includes(be)?` e zera em ${ml(be.k)}`:''}`;
+  
   lineChart($('chCum'),R,[{n:'Gain/Loss',c:css('--s1'),v:R.map(r=>r.g)},{n:'Covered/Uncovered',c:css('--s2'),v:R.map(r=>r.c)}]);
-  $('tBridge').textContent=`${R$(M.openL)} faturados ainda não viraram caixa`;
+  
   bridge($('chBridge'),[{n:'Custo incorrido',v:inc,t:'tot'},{n:'Faturado acima do custo',v:M.fatTot-inc},{n:'Faturado líquido',v:M.fatTot,t:'tot'},{n:'Em aberto a vencer',v:-(M.openL-M.lateL)},{n:'Em aberto vencido',v:-M.lateL},{n:'Recebido líquido',v:M.recTot,t:'tot'}]);
   $('srcBridge').textContent=`Posição até ${M.db.split('-').reverse().join('/')}, inclui lançamentos do mês corrente. Custo = receita (Std × ${fmtIn(P.real)}%) + despesas.`;
   const rr=R.filter(r=>r.isReal),fr=rr.reduce((a,r)=>a+r.fat,0),rv=rr.reduce((a,r)=>a+r.recCons,0);
-  $('tMonth').textContent=rr.length?`Nos meses fechados, faturamos ${N0.format(rv?fr/rv*100:0)}% da receita reconhecida; o recebimento chega com ~${P.prazo} meses de defasagem`:'Receita, faturamento e recebimento projetados';
+  
   barChart($('chMonth'),R,[{n:'Receita',c:css('--s1'),v:R.map(r=>r.recCons)},{n:'Faturamento',c:css('--s2'),v:R.map(r=>r.fat)},{n:'Recebimento',c:css('--s3'),v:R.map(r=>r.rec)}]);
 }
 function rFluxo(){
-  const R=vis();$('tFluxo').textContent=`Covered/Uncovered fecha ${ml(R[R.length-1].k)} em ${R$(R[R.length-1].c)}`;
+  const R=vis();
   const H=`<thead><tr><th class="l">R$</th>${R.map(r=>`<th class="${r.k===M.cur?'cur':''}">${ml(r.k)}<span class="tag ${r.isReal?'r':''}">${r.isReal?'REAL':'PROJ'}</span></th>`).join('')}</tr></thead>`;
   const L=(lab,f,cls='',inp)=>`<tr class="${cls}"><td>${lab}</td>${R.map(r=>td(f(r),(r.k===M.cur?'cur ':'')+(r.isReal?'':'pj ')+(inp&&!r.isReal?'in':''))).join('')}</tr>`;
   const G=l=>`<tr class="grp"><td>${l}</td>${R.map(()=>'<td></td>').join('')}</tr>`;
@@ -479,7 +477,7 @@ function bindFat(root){root.querySelectorAll('input[data-fk]').forEach(i=>i.addE
 function rFR(){
   const R=vis(),rr=R.filter(r=>r.isReal),A=R[R.length-1];
   const rec=R.reduce((a,r)=>a+r.recCons,0),fat=R.reduce((a,r)=>a+r.fat,0),rcv=R.reduce((a,r)=>a+r.rec,0);
-  $('tFR').textContent=fat>=rec?`Faturamento ${R$(fat-rec)} à frente da receita no período`:`Receita ${R$(rec-fat)} à frente do faturamento no período`;
+  
   $('psFR').innerHTML=`<div><span>Receita</span><b>${R$(rec)}</b><em>${rr.length} meses realizados</em></div><div><span>Faturamento líquido</span><b>${R$(fat)}</b><em>${N0.format(rec?fat/rec*100:0)}% da receita</em></div><div><span>Recebimento líquido</span><b>${R$(rcv)}</b><em>${N0.format(fat?rcv/fat*100:0)}% do faturado</em></div><div><span>Gain/Loss ao fim</span><b class="${A.g<0?'neg':''}">${R$(A.g)}</b><em>${ml(A.k)}</em></div>`;
   let ac=0;const dif=R.map(r=>ac+=r.fat-r.recCons);
   barChart($('chFR'),R,[{n:'Receita',c:css('--s1'),v:R.map(r=>r.recCons)},{n:'Faturamento',c:css('--s2'),v:R.map(r=>r.fat)}],{line:{n:'Diferença acum.',c:css('--ink'),v:dif,end:1}});
@@ -495,7 +493,7 @@ function rProf(){
   const P2={};DATA.time.forEach(([m,n,l,s,h])=>{if(!set.has(m))return;const lv=lvlOf(n,l);const p=P2[n]||(P2[n]={n,l:lv,h:0,r:0,mh:{},mr:{}});p.h+=h;p.r+=s*M.real;p.mh[m]=(p.mh[m]||0)+h;p.mr[m]=(p.mr[m]||0)+s*M.real});
   const ps=Object.values(P2).sort((a,b)=>lvi(a.l)-lvi(b.l)||b.r-a.r),TR=ps.reduce((a,p)=>a+p.r,0),TH=ps.reduce((a,p)=>a+p.h,0);
   const top=[...ps].sort((a,b)=>b.r-a.r).slice(0,5),tp=top.reduce((a,p)=>a+p.r,0);
-  $('tProf').textContent=`${ps.length} profissionais; os 5 maiores concentram ${N0.format(TR?tp/TR*100:0)}% da receita`;
+  
   const h1=v=>Math.abs(v)<.05?'<span class="zero">–</span>':(v<0?'('+N1.format(-v)+')':N1.format(v));
   if(profMode==='res'){
     let lastL='';
@@ -513,11 +511,11 @@ function rDesp(){
   const R=vis(),set=new Set(R.map(r=>r.k)),E=DATA.exp.filter(r=>set.has(r[0]));
   const tot=E.reduce((a,r)=>a+r[3],0),fat=E.filter(r=>r[4]).reduce((a,r)=>a+r[3],0),prog=R.filter(r=>!r.isReal).reduce((a,r)=>a+r.despP,0);
   const rr=R.filter(r=>r.isReal&&Math.abs(r.despR)>1),avg=rr.slice(-3).reduce((a,r)=>a+r.despR,0)/Math.max(1,rr.slice(-3).length);
-  $('tDesp').textContent=`${R$(tot-fat)} em despesas ainda não faturadas ao cliente`;
+  
   $('psDesp').innerHTML=`<div><span>Realizado</span><b>${R$(tot)}</b><em>${E.length} lançamentos</em></div><div><span>A faturar</span><b class="${tot-fat>0?'neg':''}">${R$(tot-fat)}</b><em>${N0.format(tot?(tot-fat)/tot*100:0)}% do realizado</em></div><div><span>Média 3 meses</span><b>${R$(avg)}</b><em>meses fechados</em></div><div><span>Programado</span><b>${R$(prog)}</b><em>até ${ml(R[R.length-1].k)}</em></div>`;
   const by={};E.forEach(r=>by[r[2]]=(by[r[2]]||0)+r[3]);const cs=Object.entries(by).sort((a,b)=>Math.abs(b[1])-Math.abs(a[1])).slice(0,9),mx=Math.max(...cs.map(c=>Math.abs(c[1])));
   $('catsDesp').innerHTML=cs.map(([n,v])=>`<div class="cat"><span>${esc(n)}</span><span class="tr"><b class="${v<0?'n':''}" style="width:${Math.abs(v)/mx*100}%"></b></span><b class="${v<0?'neg':''}">${R$(v)}</b></div>`).join('');
-  $('tDesp2').textContent=avg<15000?`Ritmo recente de ${R$(avg)}/mês fica abaixo dos ${R$(15000)} programados`:`Ritmo recente de ${R$(avg)}/mês supera o programado`;
+  
   barChart($('chDesp'),R,[{n:'Faturada',c:css('--s1'),v:R.map(r=>r.despB)},{n:'A faturar',c:css('--s2'),v:R.map(r=>r.despR-r.despB)}],{stack:1,labels:1,h:260,line:{n:'Programado',c:css('--ink'),v:R.map(r=>r.isReal?null:r.despP),dash:1}});
   const key=despMode==='cat'?2:1,ms=R.filter(r=>r.k<=M.cur).map(r=>r.k),g={};
   E.forEach(r=>{const o=g[r[key]]||(g[r[key]]={t:0,b:0,n:0});o[r[0]]=(o[r[0]]||0)+r[3];o.t+=r[3];o.n++;if(r[4])o.b+=r[3]});
@@ -529,7 +527,7 @@ function rDesp(){
 function rAR(){
   const{inv}=M,open=inv.filter(i=>i.bal>0),late=open.filter(i=>i.late>0);
   $('arNote').textContent=`Situação das faturas conforme o AR de ${M.db.split('-').reverse().join('/')}; dias em atraso contados até hoje (${TODAY.split('-').reverse().join('/')}). Importe um AR novo para atualizar pagamentos.`;
-  $('tAR').textContent=late.length?`${N0.format(M.openB?M.lateB/M.openB*100:0)}% do saldo em aberto já venceu`:'Nenhuma fatura vencida';
+  
   $('psAR').innerHTML=`<div><span>Em aberto (bruto)</span><b>${R$(M.openB)}</b><em>líquido ${R$(M.openL)}</em></div><div><span>Vencido</span><b class="${M.lateB>0?'neg':''}">${R$(M.lateB)}</b><em>${late.length} faturas</em></div><div><span>Faturado (bruto)</span><b>${R$(inv.reduce((a,i)=>a+i.amt,0))}</b><em>impostos ${R$(inv.reduce((a,i)=>a+i.tax,0))}</em></div><div><span>Recebido (bruto)</span><b>${R$(inv.reduce((a,i)=>a+i.pay,0))}</b><em>${inv.filter(i=>i.bal<=0).length} faturas pagas</em></div>`;
   const B=[['A vencer',i=>!i.late,'var(--ok)'],['1–30 dias',i=>i.late>0&&i.late<=30,'var(--warn)'],['31–60 dias',i=>i.late>30&&i.late<=60,'var(--bad)'],['61–90 dias',i=>i.late>60&&i.late<=90,'var(--bad)'],['Acima de 90',i=>i.late>90,'var(--bad)']];
   $('aging').innerHTML=B.map(([l,f,c])=>{const s=open.filter(f),v=s.reduce((a,i)=>a+i.bal,0);return `<div><span class="eyebrow">${l}</span><b>${R$(v)}</b><div class="bar"><div class="fill" style="width:${M.openB?v/M.openB*100:0}%;background:${c}"></div></div><span class="source">${s.length} faturas · ${N0.format(M.openB?v/M.openB*100:0)}%</span></div>`}).join('');
