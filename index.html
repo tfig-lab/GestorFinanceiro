@@ -170,7 +170,9 @@ td .who{font-weight:600} td .lvl{font-size:.74rem;color:var(--muted)}
 @media (max-width:760px){.aging{grid-template-columns:1fr 1fr}}
 td .cin{width:84px;padding:3px 5px;border:1px solid var(--line);border-radius:3px;background:transparent;text-align:right;font-size:.84rem}
 #tbOwn select{border:1px solid var(--line);background:var(--in);border-radius:3px;padding:3px 6px}
-.ownbox{display:inline-flex}
+.ownbox{display:inline-flex;gap:8px;flex-wrap:wrap;align-items:center}
+.engsel{background:var(--card)}
+.engsel select{border:0;background:transparent;padding:5px 8px;font-size:.8rem;max-width:300px;outline:none}
 table.edit input{width:96px;padding:4px 6px;border:1px solid var(--line);border-radius:3px;background:var(--in);text-align:right;font-size:.85rem}
 .heat{display:block;margin:-7px -10px;padding:7px 10px}
 @media (prefers-reduced-motion:no-preference){.share .sb b,.cat .tr b,.bar .fill{transition:width .35s ease}}
@@ -254,7 +256,7 @@ table.edit input{width:96px;padding:4px 6px;border:1px solid var(--line);border-
       <div class="card-hd"><div class="t"><span class="eyebrow">Débitos por código ENG</span><h3>Horas e receita por engagement</h3></div><span class="ownbox"></span></div>
       <div class="tbl" id="tbProfEng"></div>
       <div class="card-hd"><div class="t"><span class="eyebrow">Débitos por profissional</span><h3 id="tProf">Horas e receita por profissional</h3></div>
-        <div class="seg" id="segProf" role="group" aria-label="Visão"><button data-m="res" aria-pressed="true">Resumo</button><button data-m="h" aria-pressed="false">Horas por mês</button><button data-m="r" aria-pressed="false">Receita por mês</button></div></div>
+        <div class="seg" id="segProf" role="group" aria-label="Visão"><button data-m="res" aria-pressed="true">Resumo</button><button data-m="h" aria-pressed="false">Horas por mês</button><button data-m="r" aria-pressed="false">Receita por mês</button><button data-m="eng" aria-pressed="false">Por ENG</button></div></div>
       <div class="tbl" id="tbProf"></div>
     </section>
 
@@ -331,8 +333,9 @@ const TODAY=(()=>{const d=new Date();return `${d.getFullYear()}-${String(d.getMo
 const OWNERS=['Henrique','Thomas'];
 const ownDef=d=>/(^|[\s_])TH$/i.test(String(d||'').trim())?'Thomas':'Henrique';
 const ownerOf=e=>(P.own&&P.own[e])||ownDef(DATA.engs[e]);
-const okOwn=e=>OWNER==='all'||ownerOf(e)===OWNER;
-const ownSeg=()=>`<div class="seg own" role="group" aria-label="Responsável"><button data-o="all" aria-pressed="${OWNER==='all'}">Todos</button>${OWNERS.map(o=>`<button data-o="${o}" aria-pressed="${OWNER===o}">${o}</button>`).join('')}</div>`;
+const okOwn=e=>(OWNER==='all'||ownerOf(e)===OWNER)&&(ENGF==='all'||e===ENGF);
+const engSel=()=>`<div class="inp engsel"><select class="engf" aria-label="Filtrar código ENG"><option value="all">Todos os códigos ENG</option>${Object.keys(DATA.engs).filter(Boolean).sort().map(e=>`<option value="${esc(e)}" ${ENGF===e?'selected':''}>${esc(e)} · ${esc(DATA.engs[e])}</option>`).join('')}</select></div>`;
+const ownSeg=()=>engSel()+`<div class="seg own" role="group" aria-label="Responsável"><button data-o="all" aria-pressed="${OWNER==='all'}">Todos</button>${OWNERS.map(o=>`<button data-o="${o}" aria-pressed="${OWNER===o}">${o}</button>`).join('')}</div>`;
 function engTable(rows,valKey,valLab){const g={};rows.forEach(r=>{const o=g[r.e]||(g[r.e]={e:r.e,v:0,h:0,n:0});o.v+=r.v;o.h+=r.h||0;o.n++});
   const L=Object.values(g).sort((a,b)=>Math.abs(b.v)-Math.abs(a.v)),T=L.reduce((a,o)=>a+o.v,0);
   return `<table><thead><tr><th class="l">Código ENG</th><th class="l">Descrição</th><th class="l">Responsável</th>${valKey==='h'?'<th>Horas</th>':''}<th>${valLab}</th><th>Participação</th></tr></thead><tbody>${L.map(o=>`<tr><td><b>${esc(o.e||'(sem código)')}</b></td><td class="l">${esc(DATA.engs[o.e]||'')}</td><td class="l"><span class="st plain">${esc(ownerOf(o.e))}</span></td>${valKey==='h'?`<td>${N1.format(o.h)}</td>`:''}${td(o.v)}<td><div class="share"><span>${N1.format(T?o.v/T*100:0)}%</span><span class="sb"><b style="width:${T?Math.max(0,o.v/T*100):0}%"></b></span></div></td></tr>`).join('')}<tr class="tot"><td>Total</td><td></td><td></td>${valKey==='h'?`<td>${N1.format(L.reduce((a,o)=>a+o.h,0))}</td>`:''}${td(T)}<td></td></tr></tbody></table>`}
@@ -344,7 +347,7 @@ let DATA={db:SNAP.db,ar:SNAP.ar,time:SNAP.time,exp:SNAP.exp,engs:SNAP.engs||{},f
 const DEF={real:14,juros:1.02,prazo:2,g0:0,c0:0,proj:{},fat:{}};
 const LS='cf-serra-exec';
 let P=(()=>{try{const s=JSON.parse(localStorage.getItem(LS)||'null');if(s&&(!SNAP.params||(s.at||'')>=(SNAP.params.at||'')))return s}catch(e){}return SNAP.params?structuredClone(SNAP.params):structuredClone(DEF)})();
-let OWNER='all', VIEW='exec', FY='all', profMode='res', despMode='cat', M;
+let ENGF='all', OWNER='all', VIEW='exec', FY='all', profMode='res', despMode='cat', M;
 function save(){P.at=new Date().toISOString();try{localStorage.setItem(LS,JSON.stringify(P))}catch(e){}}
 function defProj(k){return{rec:k<='2026-12'?416315.2:308739.2,desp:15000,fat:k<'2026-12'?0:(k<='2027-01'?530121:370930)}}
 
@@ -515,7 +518,7 @@ const lvi=l=>{const i=LV.indexOf(l);return i<0?99:i};
 function rProf(){
   const ms=vis().filter(r=>r.k<=M.cur).map(r=>r.k),set=new Set(ms);
   const P2={};$('tbProfEng').innerHTML=engTable(DATA.time.filter(r=>set.has(r[0])&&okOwn(r[5])).map(r=>({e:r[5],v:r[3]*M.real,h:r[4]})),'h','Receita');
-  DATA.time.forEach(([m,n,l,s,h,e])=>{if(!set.has(m)||!okOwn(e))return;const lv=lvlOf(n,l);const p=P2[n]||(P2[n]={n,l:lv,h:0,r:0,mh:{},mr:{}});p.h+=h;p.r+=s*M.real;p.mh[m]=(p.mh[m]||0)+h;p.mr[m]=(p.mr[m]||0)+s*M.real});
+  DATA.time.forEach(([m,n,l,s,h,e])=>{if(!set.has(m)||!okOwn(e))return;const lv=lvlOf(n,l);const p=P2[n]||(P2[n]={n,l:lv,h:0,r:0,mh:{},mr:{},eh:{},er:{}});p.eh[e]=(p.eh[e]||0)+h;p.er[e]=(p.er[e]||0)+s*M.real;p.h+=h;p.r+=s*M.real;p.mh[m]=(p.mh[m]||0)+h;p.mr[m]=(p.mr[m]||0)+s*M.real});
   const ps=Object.values(P2).sort((a,b)=>lvi(a.l)-lvi(b.l)||b.r-a.r),TR=ps.reduce((a,p)=>a+p.r,0),TH=ps.reduce((a,p)=>a+p.h,0);
   const top=[...ps].sort((a,b)=>b.r-a.r).slice(0,5),tp=top.reduce((a,p)=>a+p.r,0);
   
@@ -525,6 +528,11 @@ function rProf(){
     $('tbProf').innerHTML=`<table><thead><tr><th class="l">Profissional</th><th>Horas</th><th>Receita</th><th>R$/hora</th><th>Participação</th></tr></thead><tbody>${ps.map(p=>{const g=p.l!==lastL?`<tr class="grp"><td>${esc(p.l)}</td><td></td><td></td><td></td><td></td></tr>`:'';lastL=p.l;
       return g+`<tr class="ind"><td><span class="who">${esc(p.n)}</span></td><td>${h1(p.h)}</td>${td(p.r)}<td>${Math.abs(p.h)>=0.05?N0.format(p.r/p.h):'<span class="zero">–</span>'}</td><td><div class="share"><span>${N1.format(TR?p.r/TR*100:0)}%</span><span class="sb"><b style="width:${TR?Math.max(0,p.r/TR*100)*3:0}%"></b></span></div></td></tr>`}).join('')}
       <tr class="tot"><td>Total</td><td>${h1(TH)}</td>${td(TR)}<td>${TH?N0.format(TR/TH):'–'}</td><td></td></tr></tbody></table>`;
+  }else if(profMode==='eng'){
+    const es=[...new Set(ps.flatMap(p=>Object.keys(p.eh).filter(e=>Math.abs(p.eh[e])>=.05||Math.abs(p.er[e])>=.5)))].sort();const te={};let lastL='';
+    $('tbProf').innerHTML=`<table><thead><tr><th class="l">Profissional</th>${es.map(e=>`<th title="${esc(DATA.engs[e]||'')}">${esc(e)}<span class="tag">${esc(ownerOf(e))}</span></th>`).join('')}<th>Total horas</th><th>Receita</th></tr></thead><tbody>${ps.map(p=>{const g=p.l!==lastL?`<tr class="grp"><td>${esc(p.l)}</td>${es.map(()=>'<td></td>').join('')}<td></td><td></td></tr>`:'';lastL=p.l;
+      return g+`<tr class="ind"><td><span class="who">${esc(p.n)}</span></td>${es.map(e=>{const v=p.eh[e]||0;te[e]=(te[e]||0)+v;return `<td class="${v<0?'neg':''}" style="${v>0?`background:color-mix(in srgb,var(--s1) ${Math.round(Math.min(1,v/Math.max(1,p.h))*35)}%,transparent)`:''}">${h1(v)}</td>`}).join('')}<td><b>${h1(p.h)}</b></td>${td(p.r)}</tr>`}).join('')}
+      <tr class="tot"><td>Total</td>${es.map(e=>`<td>${h1(te[e]||0)}</td>`).join('')}<td>${h1(TH)}</td>${td(TR)}</tr></tbody></table><p class="source">Horas por código ENG. Intensidade da cor = parcela das horas do profissional naquele código.</p>`;
   }else{
     const k=profMode==='h'?'mh':'mr',f=profMode==='h'?h1:money,mx=Math.max(1,...ps.flatMap(p=>ms.map(m=>p[k][m]||0)));const tot={};
     $('tbProf').innerHTML=`<table><thead><tr><th class="l">Profissional</th>${ms.map(m=>`<th class="${m===M.cur?'cur':''}">${ml(m)}</th>`).join('')}<th>Total</th></tr></thead><tbody>${ps.map(p=>{let t=0;
@@ -651,6 +659,7 @@ $('fySeg').addEventListener('click',e=>{const b=e.target.closest('button');if(!b
 $('segProf').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;profMode=b.dataset.m;b.parentNode.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));rProf()});
 $('segDesp').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;despMode=b.dataset.m;$('segDesp').querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));rDesp()});
 document.addEventListener('click',e=>{const b=e.target.closest('.seg.own button');if(!b)return;OWNER=b.dataset.o;renderAll()});
+document.addEventListener('change',e=>{if(!e.target.classList.contains('engf'))return;ENGF=e.target.value;renderAll()});
 window.addEventListener('resize',()=>{clearTimeout(rz);rz=setTimeout(renderAll,150)});
 setView(location.hash.slice(1));
 </script>
