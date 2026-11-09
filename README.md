@@ -4,6 +4,10 @@ Painel de fluxo de caixa do engagement **Autônomos Exp Serra Norte** (Eng. 2002
 
 **Abrir:** `https://tfig-lab.github.io/GestorFinanceiro/` (depois de ativar o GitHub Pages)
 
+## Acesso
+
+O painel abre com login. Os dados ficam criptografados no HTML (AES-256-GCM, chave derivada do usuário e senha via PBKDF2) e só são lidos com as credenciais corretas. Peça o acesso ao responsável. As cópias geradas em **Salvar cópia** saem criptografadas com a mesma senha.
+
 ## Visões
 
 | Aba | O que mostra |
