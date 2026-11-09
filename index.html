@@ -368,7 +368,7 @@ function tipOn(el,W,xs,html){const tip=el.querySelector('.tip');el.querySelector
   r.addEventListener('mouseleave',()=>{tip.style.display='none';const cr=el.querySelector('.cross');if(cr)cr.setAttribute('opacity','0')})})}
 const tipRows=(rows,i,series)=>`<b>${ml(rows[i].k)}</b> <span class="st ${rows[i].isReal?'ok':'plain'}" style="font-size:.66rem">${rows[i].isReal?'Realizado':'Projeção'}</span>`+series.map(s=>`<div class="r"><span><i style="background:${s.c}"></i>${s.n}</span><b>${R$(s.v[i])}</b></div>`).join('');
 function frame(el,rows,vals,H){
-  const W=Math.max(el.clientWidth||800,320),m={l:52,r:14,t:16,b:30},iw=W-m.l-m.r,ih=H-m.t-m.b;
+  const W=Math.max(el.clientWidth||800,320),m={l:52,r:14,t:24,b:30},iw=W-m.l-m.r,ih=H-m.t-m.b;
   const t=ticks(Math.min(0,...vals),Math.max(0,...vals)),lo=t[0],hi=t[t.length-1];
   const y=v=>m.t+ih-(v-lo)/(hi-lo)*ih,bw=iw/rows.length,x=i=>m.l+bw*i+bw/2;
   const pi=rows.findIndex(r=>!r.isReal);
@@ -392,18 +392,24 @@ function lineChart(el,rows,series){
   tipOn(el,f.W,f.x,i=>tipRows(rows,i,series));
 }
 function barChart(el,rows,series,opt={}){
-  const vals=series.flatMap(s=>s.v).concat(opt.line?opt.line.v:[]);const f=frame(el,rows,vals,opt.h||290);let s=f.s;
-  const stack=opt.stack,n=stack?1:series.length,gw=Math.min(f.bw*.74,n*24),w=gw/n-(n>1?2:0);
-  rows.forEach((r,i)=>{let base=0;series.forEach((se,j)=>{const v=se.v[i];if(Math.abs(v)<1)return;
+  const stack=opt.stack;
+  let vals=stack?rows.flatMap((r,i)=>{let p=0,n=0;series.forEach(se=>{const v=se.v[i];if(v>0)p+=v;else n+=v});return[p,n]}):series.flatMap(s=>s.v);
+  if(opt.line)vals=vals.concat(opt.line.v.filter(v=>v!=null));
+  const f=frame(el,rows,vals,opt.h||290);let s=f.s;
+  const n=stack?1:series.length,gw=Math.min(f.bw*.74,n*24),w=gw/n-(n>1?2:0),lab=[];
+  rows.forEach((r,i)=>{let pb=0,nb=0;series.forEach((se,j)=>{const v=se.v[i];if(Math.abs(v)<1)return;
     const x0=f.x(i)-gw/2+(stack?0:j*(w+2));let y0,y1;
-    if(stack){y0=f.y(base+v);y1=f.y(base);base+=v}else{y0=f.y(Math.max(v,0));y1=f.y(Math.min(v,0))}
+    if(stack){if(v>0){y0=f.y(pb+v);y1=f.y(pb);pb+=v}else{y0=f.y(nb);y1=f.y(nb+v);nb+=v}}else{y0=f.y(Math.max(v,0));y1=f.y(Math.min(v,0))}
     const top=Math.min(y0,y1),h=Math.abs(y1-y0);s+=`<rect x="${x0}" y="${top}" width="${w}" height="${Math.max(h-(stack?1.5:0),.5)}" rx="2" fill="${se.c}"/>`});
-    if(opt.labels){const tot=stack?series.reduce((a,se)=>a+se.v[i],0):null;if(tot&&Math.abs(tot)>1)s+=`<text class="vl" x="${f.x(i)}" y="${f.y(Math.max(tot,0))-6}" text-anchor="middle">${cpt(tot)}</text>`}});
-  if(opt.line){const d=opt.line.v.map((v,i)=>(i?'L':'M')+f.x(i)+','+f.y(v)).join('');s+=`<path d="${d}" fill="none" stroke="${opt.line.c}" stroke-width="2" ${opt.line.dash?'stroke-dasharray="5 4"':''}/>`;
+    if(opt.labels&&stack){const tot=pb+nb;if(Math.abs(tot)>1)lab.push(tot>=0?`<text class="vl" x="${f.x(i)}" y="${f.y(pb)-6}" text-anchor="middle">${cpt(tot)}</text>`:`<text class="vn" x="${f.x(i)}" y="${f.y(nb)+15}" text-anchor="middle">${cpt(tot)}</text>`)}});
+  if(opt.line){let d='',pen=false;opt.line.v.forEach((v,i)=>{if(v==null){pen=false;return}d+=(pen?'L':'M')+f.x(i)+','+f.y(v);pen=true});
+    s+=`<path d="${d}" fill="none" stroke="${opt.line.c}" stroke-width="2" ${opt.line.dash?'stroke-dasharray="5 4"':''}/>`;
     if(opt.line.end){const li=opt.line.v.length-1;s+=`<circle cx="${f.x(li)}" cy="${f.y(opt.line.v[li])}" r="4" fill="${opt.line.c}" stroke="var(--card)" stroke-width="2"/><text class="vl" x="${f.x(li)-6}" y="${f.y(opt.line.v[li])-9}" text-anchor="end">${cpt(opt.line.v[li])}</text>`}}
+  s+=lab.join('');
   rows.forEach((r,i)=>s+=`<rect data-i="${i}" x="${f.m.l+f.bw*i}" y="${f.m.t}" width="${f.bw}" height="${f.ih}" fill="transparent"/>`);
   el.innerHTML=`<svg viewBox="0 0 ${f.W} ${f.H}" role="img" aria-label="Gráfico de barras">${s}</svg><div class="tip"></div>`;
-  tipOn(el,f.W,f.x,i=>tipRows(rows,i,opt.line?series.concat([opt.line]):series));
+  const tips=opt.line?series.concat([{...opt.line,v:opt.line.v.map(v=>v??0)}]):series;
+  tipOn(el,f.W,f.x,i=>tipRows(rows,i,tips));
 }
 function bridge(el,steps){
   const W=Math.max(el.clientWidth||520,300),H=300,m={l:10,r:10,t:26,b:46},iw=W-m.l-m.r,ih=H-m.t-m.b;
@@ -510,7 +516,7 @@ function rDesp(){
   const by={};E.forEach(r=>by[r[2]]=(by[r[2]]||0)+r[3]);const cs=Object.entries(by).sort((a,b)=>Math.abs(b[1])-Math.abs(a[1])).slice(0,9),mx=Math.max(...cs.map(c=>Math.abs(c[1])));
   $('catsDesp').innerHTML=cs.map(([n,v])=>`<div class="cat"><span>${esc(n)}</span><span class="tr"><b class="${v<0?'n':''}" style="width:${Math.abs(v)/mx*100}%"></b></span><b class="${v<0?'neg':''}">${R$(v)}</b></div>`).join('');
   $('tDesp2').textContent=avg<15000?`Ritmo recente de ${R$(avg)}/mês fica abaixo dos ${R$(15000)} programados`:`Ritmo recente de ${R$(avg)}/mês supera o programado`;
-  barChart($('chDesp'),R,[{n:'Faturada',c:css('--s1'),v:R.map(r=>r.despB)},{n:'A faturar',c:css('--s2'),v:R.map(r=>r.despR-r.despB)}],{stack:1,labels:1,h:260,line:{n:'Programado',c:css('--ink'),v:R.map(r=>r.isReal?0:r.despP),dash:1}});
+  barChart($('chDesp'),R,[{n:'Faturada',c:css('--s1'),v:R.map(r=>r.despB)},{n:'A faturar',c:css('--s2'),v:R.map(r=>r.despR-r.despB)}],{stack:1,labels:1,h:260,line:{n:'Programado',c:css('--ink'),v:R.map(r=>r.isReal?null:r.despP),dash:1}});
   const key=despMode==='cat'?2:1,ms=R.filter(r=>r.k<=M.cur).map(r=>r.k),g={};
   E.forEach(r=>{const o=g[r[key]]||(g[r[key]]={t:0,b:0,n:0});o[r[0]]=(o[r[0]]||0)+r[3];o.t+=r[3];o.n++;if(r[4])o.b+=r[3]});
   const ks=Object.keys(g).sort((a,b)=>Math.abs(g[b].t)-Math.abs(g[a].t)),tm={};
