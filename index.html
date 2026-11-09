@@ -173,6 +173,13 @@ td .cin{width:84px;padding:3px 5px;border:1px solid var(--line);border-radius:3p
 .ownbox{display:inline-flex;gap:8px;flex-wrap:wrap;align-items:center}
 .engsel{background:var(--card)}
 .engsel select{border:0;background:transparent;padding:5px 8px;font-size:.8rem;max-width:300px;outline:none}
+tr.pvg td{background:var(--soft);font-weight:700;cursor:pointer;border-top:1px solid var(--rule)}
+tr.pvg td:first-child{background:var(--soft)}
+tr.pvg:hover td{background:color-mix(in srgb,var(--soft) 60%,var(--plan))}
+tr.pvg .car{display:inline-block;width:16px;color:var(--accent)}
+tr.pvg .lvl{font-weight:500}
+table.pivot tr.ind td:first-child{padding-left:30px}
+.pvbar{display:flex;gap:14px;align-items:baseline;flex-wrap:wrap;margin-bottom:8px}
 table.edit input{width:96px;padding:4px 6px;border:1px solid var(--line);border-radius:3px;background:var(--in);text-align:right;font-size:.85rem}
 .heat{display:block;margin:-7px -10px;padding:7px 10px}
 @media (prefers-reduced-motion:no-preference){.share .sb b,.cat .tr b,.bar .fill{transition:width .35s ease}}
@@ -347,6 +354,7 @@ let DATA={db:SNAP.db,ar:SNAP.ar,time:SNAP.time,exp:SNAP.exp,engs:SNAP.engs||{},f
 const DEF={real:14,juros:1.02,prazo:2,g0:0,c0:0,proj:{},fat:{}};
 const LS='cf-serra-exec';
 let P=(()=>{try{const s=JSON.parse(localStorage.getItem(LS)||'null');if(s&&(!SNAP.params||(s.at||'')>=(SNAP.params.at||'')))return s}catch(e){}return SNAP.params?structuredClone(SNAP.params):structuredClone(DEF)})();
+const PIVC=new Set();
 let ENGF='all', OWNER='all', VIEW='exec', FY='all', profMode='res', despMode='cat', M;
 function save(){P.at=new Date().toISOString();try{localStorage.setItem(LS,JSON.stringify(P))}catch(e){}}
 function defProj(k){return{rec:k<='2026-12'?416315.2:308739.2,desp:15000,fat:k<'2026-12'?0:(k<='2027-01'?530121:370930)}}
@@ -534,10 +542,25 @@ function rProf(){
       return g+`<tr class="ind"><td><span class="who">${esc(p.n)}</span></td>${es.map(e=>{const v=p.eh[e]||0;te[e]=(te[e]||0)+v;return `<td class="${v<0?'neg':''}" style="${v>0?`background:color-mix(in srgb,var(--s1) ${Math.round(Math.min(1,v/Math.max(1,p.h))*35)}%,transparent)`:''}">${h1(v)}</td>`}).join('')}<td><b>${h1(p.h)}</b></td>${td(p.r)}</tr>`}).join('')}
       <tr class="tot"><td>Total</td>${es.map(e=>`<td>${h1(te[e]||0)}</td>`).join('')}<td>${h1(TH)}</td>${td(TR)}</tr></tbody></table><p class="source">Horas por código ENG. Intensidade da cor = parcela das horas do profissional naquele código.</p>`;
   }else{
-    const k=profMode==='h'?'mh':'mr',f=profMode==='h'?h1:money,mx=Math.max(1,...ps.flatMap(p=>ms.map(m=>p[k][m]||0)));const tot={};
-    $('tbProf').innerHTML=`<table><thead><tr><th class="l">Profissional</th>${ms.map(m=>`<th class="${m===M.cur?'cur':''}">${ml(m)}</th>`).join('')}<th>Total</th></tr></thead><tbody>${ps.map(p=>{let t=0;
-      return `<tr><td><span class="who">${esc(p.n)}</span><br><span class="lvl">${esc(p.l)}</span></td>${ms.map(m=>{const v=p[k][m]||0;t+=v;tot[m]=(tot[m]||0)+v;const a=v>0?Math.round(v/mx*40):0;return `<td class="${v<0?'neg':''}" style="${a?`background:color-mix(in srgb,var(--s1) ${a}%,transparent)`:''}">${f(v)}</td>`}).join('')}<td><b>${f(t)}</b></td></tr>`}).join('')}
+    const isH=profMode==='h',f=isH?h1:money;
+    // pivô: ENG > profissional > mês
+    const pv={};DATA.time.forEach(([m,n,l,s,h,e])=>{if(!set.has(m)||!okOwn(e))return;const v=isH?h:s*M.real;
+      const g=pv[e]||(pv[e]={e,t:0,m:{},p:{}});g.t+=v;g.m[m]=(g.m[m]||0)+v;
+      const p=g.p[n]||(g.p[n]={n,l:lvlOf(n,l),t:0,m:{}});p.t+=v;p.m[m]=(p.m[m]||0)+v});
+    const gs=Object.values(pv).sort((a,b)=>Math.abs(b.t)-Math.abs(a.t)),tot={};
+    const mx=Math.max(1,...gs.flatMap(g=>Object.values(g.p).flatMap(p=>ms.map(m=>p.m[m]||0))));
+    const cell=(v,cls='')=>{const a=v>0?Math.round(v/mx*40):0;return `<td class="${cls}${v<0?' neg':''}" style="${a?`background:color-mix(in srgb,var(--s1) ${a}%,transparent)`:''}">${f(v)}</td>`};
+    const allOpen=gs.every(g=>!PIVC.has(g.e));
+    $('tbProf').innerHTML=`<div class="pvbar"><button class="btn link" type="button" data-pv="${allOpen?'close':'open'}">${allOpen?'Recolher todos os ENG':'Expandir todos os ENG'}</button><span class="source">${isH?'Horas':'Receita (R$)'} · ENG → profissional → mês. Clique no ENG para abrir ou fechar.</span></div>
+    <table class="pivot"><thead><tr><th class="l">ENG / Profissional</th>${ms.map(m=>`<th class="${m===M.cur?'cur':''}">${ml(m)}</th>`).join('')}<th>Total</th></tr></thead><tbody>${gs.map(g=>{
+      const open=!PIVC.has(g.e);ms.forEach(m=>tot[m]=(tot[m]||0)+(g.m[m]||0));
+      const ppl=Object.values(g.p).filter(p=>Math.abs(p.t)>=.05||ms.some(m=>Math.abs(p.m[m]||0)>=.05)).sort((a,b)=>lvi(a.l)-lvi(b.l)||b.t-a.t);
+      return `<tr class="pvg" data-eng="${esc(g.e)}" tabindex="0" role="button" aria-expanded="${open}"><td><span class="car">${open?'▾':'▸'}</span><b>${esc(g.e||'(sem código)')}</b> <span class="lvl">${esc(DATA.engs[g.e]||'')} · ${esc(ownerOf(g.e))} · ${ppl.length} prof.</span></td>${ms.map(m=>`<td>${f(g.m[m]||0)}</td>`).join('')}<td>${f(g.t)}</td></tr>`+
+        (open?ppl.map(p=>`<tr class="ind"><td><span class="who">${esc(p.n)}</span> <span class="lvl">${esc(p.l)}</span></td>${ms.map(m=>cell(p.m[m]||0)).join('')}<td><b>${f(p.t)}</b></td></tr>`).join(''):'');
+    }).join('')}
       <tr class="tot"><td>Total</td>${ms.map(m=>`<td>${f(tot[m]||0)}</td>`).join('')}<td>${f(ms.reduce((a,m)=>a+(tot[m]||0),0))}</td></tr></tbody></table>`;
+    $('tbProf').querySelectorAll('tr.pvg').forEach(r=>{const tg=()=>{const e=r.dataset.eng;PIVC.has(e)?PIVC.delete(e):PIVC.add(e);rProf()};r.addEventListener('click',tg);r.addEventListener('keydown',ev=>{if(ev.key==='Enter'||ev.key===' '){ev.preventDefault();tg()}})});
+    $('tbProf').querySelector('[data-pv]').addEventListener('click',ev=>{if(ev.target.dataset.pv==='close')gs.forEach(g=>PIVC.add(g.e));else PIVC.clear();rProf()});
   }
 }
 function rDesp(){
