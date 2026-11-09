@@ -57,6 +57,10 @@ button,input,select{font:inherit;color:inherit}
 input[type=file]{display:none}
 .notice{padding:10px 14px;font-size:.88rem;border-left:3px solid var(--accent);background:var(--soft);border-radius:4px}
 .notice.err{border-left-color:var(--bad);background:var(--bad-soft);color:var(--bad)}
+body.pres{padding:12px 16px 24px}
+body.pres .wrap{max-width:none}
+body.pres #saveBtn,body.pres label[for="file"]{display:none}
+body.pres #fsBtn{background:var(--ink);color:var(--card);border-color:var(--ink)}
 body.over .wrap{outline:2px dashed var(--accent);outline-offset:8px}
 
 .seg{display:inline-flex;border:1px solid var(--line);border-radius:4px;overflow:hidden;background:var(--card)}
@@ -617,10 +621,22 @@ $('saveBtn').addEventListener('click',async()=>{let html;try{html=buildSnapshot(
   try{const u=URL.createObjectURL(new Blob([html],{type:'text/html'}));const a=document.createElement('a');a.href=u;a.download=fname;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),3000);showMsg('info',`<b>${fname}</b> baixado.`)}catch(e){showMsg('err','O navegador bloqueou o download.')}});
 
 /* ---------- tela cheia ---------- */
+let rz;
 const fsEl=()=>document.fullscreenElement||document.webkitFullscreenElement;
-if(document.fullscreenEnabled||document.webkitFullscreenEnabled){$('fsBtn').hidden=false;
-  $('fsBtn').addEventListener('click',async()=>{try{if(fsEl())await(document.exitFullscreen||document.webkitExitFullscreen).call(document);else{const r=document.documentElement;await(r.requestFullscreen||r.webkitRequestFullscreen).call(r)}}catch(e){showMsg('err','Tela cheia indisponível nesta visualização. Abra o painel numa aba própria.')}});
-  document.addEventListener('fullscreenchange',()=>$('fsTxt').textContent=fsEl()?'Sair da tela cheia':'Tela cheia')}
+const fsOn=()=>!!fsEl()||document.body.classList.contains('pres');
+function fsSync(){const on=fsOn();$('fsTxt').textContent=on?'Sair da tela cheia':'Tela cheia';$('fsBtn').setAttribute('aria-pressed',String(on));clearTimeout(rz);rz=setTimeout(renderAll,120)}
+async function fsToggle(){
+  if(fsEl()){try{await(document.exitFullscreen||document.webkitExitFullscreen).call(document)}catch(e){}document.body.classList.remove('pres');fsSync();return}
+  if(document.body.classList.contains('pres')){document.body.classList.remove('pres');fsSync();return}
+  const r=document.documentElement,req=r.requestFullscreen||r.webkitRequestFullscreen;
+  try{if(!req||!(document.fullscreenEnabled||document.webkitFullscreenEnabled))throw 0;await req.call(r);document.body.classList.add('pres')}
+  catch(e){document.body.classList.add('pres')}
+  fsSync();
+}
+$('fsBtn').hidden=false;$('fsBtn').addEventListener('click',fsToggle);
+document.addEventListener('fullscreenchange',()=>{if(!fsEl())document.body.classList.remove('pres');fsSync()});
+document.addEventListener('webkitfullscreenchange',()=>{if(!fsEl())document.body.classList.remove('pres');fsSync()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.body.classList.contains('pres')&&!fsEl()){document.body.classList.remove('pres');fsSync()}});
 
 /* ---------- controles ---------- */
 function bindIn(id,key,d=2){const el=$(id);el.value=fmtIn(P[key],d);el.addEventListener('change',()=>{P[key]=parseBR(el.value);el.value=fmtIn(P[key],d);save();renderAll()})}
@@ -635,7 +651,7 @@ $('fySeg').addEventListener('click',e=>{const b=e.target.closest('button');if(!b
 $('segProf').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;profMode=b.dataset.m;b.parentNode.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));rProf()});
 $('segDesp').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;despMode=b.dataset.m;$('segDesp').querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));rDesp()});
 document.addEventListener('click',e=>{const b=e.target.closest('.seg.own button');if(!b)return;OWNER=b.dataset.o;renderAll()});
-let rz;window.addEventListener('resize',()=>{clearTimeout(rz);rz=setTimeout(renderAll,150)});
+window.addEventListener('resize',()=>{clearTimeout(rz);rz=setTimeout(renderAll,150)});
 setView(location.hash.slice(1));
 </script>
 </body>
