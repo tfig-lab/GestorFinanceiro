@@ -273,6 +273,7 @@ table.edit input{width:96px;padding:4px 6px;border:1px solid var(--line);border-
       <div class="card-hd"><div class="t"><span class="eyebrow">Contas a receber</span><h3 id="tAR"></h3></div></div>
       <div class="pstrip" id="psAR"></div>
       <div class="aging" id="aging"></div>
+      <p class="source" id="arNote"></p>
       <div class="tbl" id="tbAR"></div>
     </section>
 
@@ -312,6 +313,7 @@ const parseBR=s=>{if(typeof s==='number')return s;s=String(s||'').trim().replace
 const fmtIn=(v,d=2)=>new Intl.NumberFormat('pt-BR',{maximumFractionDigits:d}).format(v||0);
 const isBot=(n,l)=>/(^|[^A-Z])BOT([^A-Z]|$)/i.test(n||'')||/BOT/i.test(l||'');
 const lvlOf=(n,l)=>isBot(n,l)?'BOT (robô)':l;
+const TODAY=(()=>{const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`})();
 const css=v=>getComputedStyle(document.documentElement).getPropertyValue(v).trim();
 
 /* ---------- estado ---------- */
@@ -336,7 +338,7 @@ function compute(){
   D.time.forEach(([m,n,l,s,h])=>{if(m in std){std[m]+=s;hrs[m]+=h;if(isBot(n,l))bot[m]+=s}});
   D.exp.forEach(([m,w,c,v,b])=>{if(m in exp){exp[m]+=v;if(b)expB[m]+=v}});
   const inv=D.ar.map(([cl,no,st,bd,dd,amt,tax,pay,bal])=>{const pl=amt?(amt-tax)/amt:0;
-    const late=bal>0&&dd<db?Math.round((new Date(db)-new Date(dd))/864e5):0;
+    const ref=TODAY>db?TODAY:db,late=bal>0&&dd<ref?Math.round((new Date(ref)-new Date(dd))/864e5):0;
     return{cl,no,st,bd,dd,amt,tax,net:amt-tax,pay:-pay,bal,balL:bal*pl,recL:-pay*pl,late,bm:bd.slice(0,7),dm:dd.slice(0,7)}});
   inv.forEach(i=>{if(i.bm in fatB){fatB[i.bm]+=i.amt;fatL[i.bm]+=i.net}
     if(i.recL&&i.dm in recv)recv[i.dm]+=i.recL;
@@ -526,6 +528,7 @@ function rDesp(){
 }
 function rAR(){
   const{inv}=M,open=inv.filter(i=>i.bal>0),late=open.filter(i=>i.late>0);
+  $('arNote').textContent=`Situação das faturas conforme o AR de ${M.db.split('-').reverse().join('/')}; dias em atraso contados até hoje (${TODAY.split('-').reverse().join('/')}). Importe um AR novo para atualizar pagamentos.`;
   $('tAR').textContent=late.length?`${N0.format(M.openB?M.lateB/M.openB*100:0)}% do saldo em aberto já venceu`:'Nenhuma fatura vencida';
   $('psAR').innerHTML=`<div><span>Em aberto (bruto)</span><b>${R$(M.openB)}</b><em>líquido ${R$(M.openL)}</em></div><div><span>Vencido</span><b class="${M.lateB>0?'neg':''}">${R$(M.lateB)}</b><em>${late.length} faturas</em></div><div><span>Faturado (bruto)</span><b>${R$(inv.reduce((a,i)=>a+i.amt,0))}</b><em>impostos ${R$(inv.reduce((a,i)=>a+i.tax,0))}</em></div><div><span>Recebido (bruto)</span><b>${R$(inv.reduce((a,i)=>a+i.pay,0))}</b><em>${inv.filter(i=>i.bal<=0).length} faturas pagas</em></div>`;
   const B=[['A vencer',i=>!i.late,'var(--ok)'],['1–30 dias',i=>i.late>0&&i.late<=30,'var(--warn)'],['31–60 dias',i=>i.late>30&&i.late<=60,'var(--bad)'],['61–90 dias',i=>i.late>60&&i.late<=90,'var(--bad)'],['Acima de 90',i=>i.late>90,'var(--bad)']];
